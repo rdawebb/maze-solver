@@ -2,6 +2,7 @@
 import logging
 from graphics import Window, Line, Point
 from cell import Cell
+from maze import Maze
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -10,27 +11,24 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 def main():
     # create a window instance
     logging.info("Starting the Maze Solver application.")
-    window = Window(800, 600)
 
-    # create and draw some cells
+    # log maze drawing start
+    logging.info("Drawing maze...")
 
-    logging.info("Drawing cells...")
-    
-    c = Cell(window)
-    c.has_left_wall = False
-    c.draw(100, 100, 200, 200)
+    # create and draw a maze
+    num_rows = 20
+    num_cols = 30
+    margin = 50
+    screen_x = 800
+    screen_y = 600
+    cell_size_x = (screen_x - 2 * margin) // num_cols
+    cell_size_y = (screen_y - 2 * margin) // num_rows
+    window = Window(screen_x, screen_y)
 
-    c = Cell(window)
-    c.has_right_wall = False
-    c.draw(200, 100, 300, 200)
+    maze = Maze(margin, margin, num_rows, num_cols, cell_size_x, cell_size_y, window)
 
-    c = Cell(window)
-    c.has_top_wall = False
-    c.draw(300, 100, 400, 200)
-
-    c = Cell(window)
-    c.has_bottom_wall = False
-    c.draw(400, 100, 500, 200)
+    # log maze completion
+    logging.info("Maze complete.")
 
     # wait for the window to close
     window.wait_for_close()
