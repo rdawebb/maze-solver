@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # define the Cell class
 class Cell:
     # initialize the cell with walls and position
-    def __init__(self, window=None):
+    def __init__(self, window=None, visited=False):
         self.has_right_wall = True # right wall exists
         self.has_left_wall = True # left wall exists
         self.has_top_wall = True # top wall exists
@@ -18,6 +18,7 @@ class Cell:
         self.__x2 = -1 # bottom-right x-coordinate
         self.__y2 = -1 # bottom-right y-coordinate
         self.window = window # reference to the window object
+        self.visited = visited # flag to indicate if the cell has been visited
 
     # method to draw the cell on the window
     def draw(self, x1, y1, x2, y2):

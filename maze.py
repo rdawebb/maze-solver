@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # define the Maze class
 class Maze:
-  def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, window=None):
+  def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, window=None, seed=None):
     self.__x1 = x1 # top-left x-coordinate of the maze
     self.__y1 = y1 # top-left y-coordinate of the maze
     self.__num_rows = num_rows # number of rows in the maze
@@ -20,8 +20,13 @@ class Maze:
     self.__cells = [] # list to store the cells
     self.__window = window # reference to the window object
 
+    # set the random seed for reproducibility
+    if seed is not None:
+      random.seed(seed)
+
     self.__create_cells() # create the cells
     self.__break_entrance_and_exit() # break the entrance and exit walls
+    self.__break_walls_recursive(0, 0) # start breaking walls from the top-left cell
 
   # private method to create the cells
   def __create_cells(self):
@@ -61,7 +66,7 @@ class Maze:
       return
 
     self.__window.redraw()
-    time.sleep(0.05) # adjust the sleep time for speed control
+    time.sleep(0.02) # adjust the sleep time for speed control
 
   # private method to break the entrance and exit walls
   def __break_entrance_and_exit(self):
@@ -78,3 +83,58 @@ class Maze:
     # only draw the cell if a window is provided
     if self.__window is not None:
       self.__draw_cell(self.__num_cols - 1, self.__num_rows - 1)
+
+  # private recursive method to break walls
+  def __break_walls_recursive(self, col=0, row=0):
+    # mark the current cell as visited
+    self.__cells[col][row].visited = True
+
+    while True:
+      # create list of unvisited neighbors
+      unvisited_neighbors = []
+
+      # check left neighbor
+      if col > 0 and not self.__cells[col - 1][row].visited:
+        unvisited_neighbors.append((col - 1, row, 'left'))
+
+      # check right neighbor
+      if col < self.__num_cols - 1 and not self.__cells[col + 1][row].visited:
+        unvisited_neighbors.append((col + 1, row, 'right'))
+
+      # check top neighbor
+      if row > 0 and not self.__cells[col][row - 1].visited:
+        unvisited_neighbors.append((col, row - 1, 'top'))
+
+      # check bottom neighbor
+      if row < self.__num_rows - 1 and not self.__cells[col][row + 1].visited:
+        unvisited_neighbors.append((col, row + 1, 'bottom'))
+
+      # no unvisited neighbors, backtrack
+      if not unvisited_neighbors:
+        self.__draw_cell(col, row)
+        return
+
+      # choose a random neighbor to visit
+      next_col, next_row, direction = random.choice(unvisited_neighbors)
+
+      # break the wall between the current cell and the chosen neighbor
+      if direction == 'left':
+        self.__cells[col][row].has_left_wall = False
+        self.__cells[next_col][next_row].has_right_wall = False
+      elif direction == 'right':
+        self.__cells[col][row].has_right_wall = False
+        self.__cells[next_col][next_row].has_left_wall = False
+      elif direction == 'top':
+        self.__cells[col][row].has_top_wall = False
+        self.__cells[next_col][next_row].has_bottom_wall = False
+      elif direction == 'bottom':
+        self.__cells[col][row].has_bottom_wall = False
+        self.__cells[next_col][next_row].has_top_wall = False
+
+      # redraw the current cell and the neighbor cell if a window is provided
+      if self.__window is not None:
+        self.__draw_cell(col, row)
+        self.__draw_cell(next_col, next_row)
+
+      # recursively visit the chosen neighbor
+      self.__break_walls_recursive(next_col, next_row)
