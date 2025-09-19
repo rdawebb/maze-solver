@@ -1,7 +1,9 @@
 # import necessary modules
 import logging
 from graphics import Window, Line, Point
+from cell import Cell
 
+# configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # main function
@@ -10,17 +12,25 @@ def main():
     logging.info("Starting the Maze Solver application.")
     window = Window(800, 600)
 
-    # create some lines to draw
-    line1 = Line(Point(100, 100), Point(200, 200))
-    line2 = Line(Point(200, 100), Point(100, 200))
+    # create and draw some cells
 
-    # draw the lines on the window
-    logging.info("Drawing lines.")
-    window.draw_line(line1, "black")
-    window.draw_line(line2, "black")
+    logging.info("Drawing cells...")
+    
+    c = Cell(window)
+    c.has_left_wall = False
+    c.draw(100, 100, 200, 200)
 
-    # redraw the window to show the lines
-    window.redraw()
+    c = Cell(window)
+    c.has_right_wall = False
+    c.draw(200, 100, 300, 200)
+
+    c = Cell(window)
+    c.has_top_wall = False
+    c.draw(300, 100, 400, 200)
+
+    c = Cell(window)
+    c.has_bottom_wall = False
+    c.draw(400, 100, 500, 200)
 
     # wait for the window to close
     window.wait_for_close()
