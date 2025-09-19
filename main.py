@@ -16,8 +16,8 @@ def main():
     logging.info("Drawing maze...")
 
     # create and draw a maze
-    num_rows = 20
-    num_cols = 30
+    num_rows = 12
+    num_cols = 16
     margin = 50
     screen_x = 800
     screen_y = 600

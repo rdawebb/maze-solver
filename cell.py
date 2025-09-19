@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # define the Cell class
 class Cell:
     # initialize the cell with walls and position
-    def __init__(self, window):
+    def __init__(self, window=None):
         self.has_right_wall = True # right wall exists
         self.has_left_wall = True # left wall exists
         self.has_top_wall = True # top wall exists
@@ -36,21 +36,33 @@ class Cell:
         if self.has_right_wall:
             line = Line(Point(x2, y1), Point(x2, y2))
             self.window.draw_line(line)
+        else:
+            line = Line(Point(x2, y1), Point(x2, y2))
+            self.window.draw_line(line, "white")
 
         # check if left wall exists and draw it
         if self.has_left_wall:
             line = Line(Point(x1, y1), Point(x1, y2))
             self.window.draw_line(line)
+        else:
+            line = Line(Point(x1, y1), Point(x1, y2))
+            self.window.draw_line(line, "white")
 
         # check if top wall exists and draw it
         if self.has_top_wall:
             line = Line(Point(x1, y1), Point(x2, y1))
             self.window.draw_line(line)
+        else:
+            line = Line(Point(x1, y1), Point(x2, y1))
+            self.window.draw_line(line, "white")
         
         # check if bottom wall exists and draw it
         if self.has_bottom_wall:
             line = Line(Point(x1, y2), Point(x2, y2))
             self.window.draw_line(line)
+        else:
+            line = Line(Point(x1, y2), Point(x2, y2))
+            self.window.draw_line(line, "white")
 
     # method to draw a move from this cell to another cell
     def draw_move(self, to_cell, undo=False):
