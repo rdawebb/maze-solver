@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # define the Maze class
 class Maze:
-  def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, window=None, seed=None):
+  def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, window=None, seed=None, animate_speed=0.02):
     self.__x1 = x1 # top-left x-coordinate of the maze
     self.__y1 = y1 # top-left y-coordinate of the maze
     self.__num_rows = num_rows # number of rows in the maze
@@ -19,14 +19,17 @@ class Maze:
     self.__cell_size_y = cell_size_y # height of each cell
     self.__cells = [] # list to store the cells
     self.__window = window # reference to the window object
+    self.__animate_speed = animate_speed # animation speed for drawing
 
     # set the random seed for reproducibility
     if seed is not None:
       random.seed(seed)
 
     self.__create_cells() # create the cells
+    time.sleep(0.5) # pause before breaking walls
     self.__break_entrance_and_exit() # break the entrance and exit walls
     self.__break_walls_recursive(0, 0) # start breaking walls from the top-left cell
+    self.__reset_cells_visited() # reset visited status of all cells
 
   # private method to create the cells
   def __create_cells(self):
@@ -66,7 +69,11 @@ class Maze:
       return
 
     self.__window.redraw()
-    time.sleep(0.02) # adjust the sleep time for speed control
+    time.sleep(self.__animate_speed) # adjust the sleep time for speed control
+
+  # public method to set animation speed
+  def set_animate_speed(self, animate_speed):
+    self.__animate_speed = animate_speed
 
   # private method to break the entrance and exit walls
   def __break_entrance_and_exit(self):
@@ -111,7 +118,9 @@ class Maze:
 
       # no unvisited neighbors, backtrack
       if not unvisited_neighbors:
-        self.__draw_cell(col, row)
+        # only draw the cell if a window is provided
+        if self.__window is not None:
+          self.__draw_cell(col, row)
         return
 
       # choose a random neighbor to visit
@@ -138,3 +147,77 @@ class Maze:
 
       # recursively visit the chosen neighbor
       self.__break_walls_recursive(next_col, next_row)
+
+  # private method to reset visited status of all cells
+  def __reset_cells_visited(self):
+    for col in range(self.__num_cols):
+      for row in range(self.__num_rows):
+        self.__cells[col][row].visited = False
+
+  # public method to solve the maze using DFS
+  def solve(self):
+    return self.__solve_recursive(0, 0)
+  
+  # private recursive method to solve the maze
+  def __solve_recursive(self, col, row):
+    # animate the solving process
+    if self.__window is not None:
+      self.__animate()
+    
+    # mark the current cell as visited
+    self.__cells[col][row].visited = True
+    
+    # check if the exit is reached
+    if col == self.__num_cols - 1 and row == self.__num_rows - 1:
+      return True
+    
+    # check left neighbor is not visited and no wall in between
+    if col > 0 and not self.__cells[col][row].has_left_wall and not self.__cells[col - 1][row].visited:
+      # draw the move
+      self.__cells[col][row].draw_move(self.__cells[col - 1][row])
+
+      # recursively visit the left neighbor
+      if self.__solve_recursive(col - 1, row):
+        return True
+
+      # backtrack if false
+      self.__cells[col][row].draw_move(self.__cells[col - 1][row], True)
+
+    # check right neighbor is not visited and no wall in between
+    if col < self.__num_cols - 1 and not self.__cells[col][row].has_right_wall and not self.__cells[col + 1][row].visited:
+      # draw the move
+      self.__cells[col][row].draw_move(self.__cells[col + 1][row])
+
+      # recursively visit the right neighbor
+      if self.__solve_recursive(col + 1, row):
+        return True
+
+      # backtrack if false
+      self.__cells[col + 1][row].draw_move(self.__cells[col][row], True)    
+      
+    # check top neighbor is not visited and no wall in between
+    if row > 0 and not self.__cells[col][row].has_top_wall and not self.__cells[col][row - 1].visited:
+      # draw the move
+      self.__cells[col][row].draw_move(self.__cells[col][row - 1])
+
+      # recursively visit the top neighbor
+      if self.__solve_recursive(col, row - 1):
+        return True
+
+      # backtrack if false
+      self.__cells[col][row - 1].draw_move(self.__cells[col][row], True)
+
+    # check bottom neighbor is not visited and no wall in between
+    if row < self.__num_rows - 1 and not self.__cells[col][row].has_bottom_wall and not self.__cells[col][row + 1].visited:
+      # draw the move
+      self.__cells[col][row].draw_move(self.__cells[col][row + 1])
+
+      # recursively visit the bottom neighbor
+      if self.__solve_recursive(col, row + 1):
+        return True
+
+      # backtrack if false
+      self.__cells[col][row + 1].draw_move(self.__cells[col][row], True)    
+      
+    # if no solution found, return false
+    return False

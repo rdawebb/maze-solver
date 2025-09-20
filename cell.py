@@ -67,10 +67,9 @@ class Cell:
 
     # method to draw a move from this cell to another cell
     def draw_move(self, to_cell, undo=False):
-        # ensure the window is set
+        # if no window is set, skip drawing for testing purposes
         if self.window is None:
-            # raise an error if the window is not set
-            raise ValueError("Window is not set for the cell.")
+            return
 
         # ensure the target cell is set
         if to_cell is None or not isinstance(to_cell, Cell):
